@@ -1,0 +1,172 @@
+---
+title: "AI開発を始めるための環境構築ガイド 2026年版"
+slug: "ai-dev-environment-setup"
+description: "AI開発に必要な環境を一から構築する手順を解説。Node.js、Claude Code、Cursorの導入から初期設定まで。"
+category: "setup"
+tools: ["claude", "cursor"]
+tasks: ["development"]
+tags: ["環境構築", "Node.js", "Claude Code", "Cursor"]
+publishedAt: "2026-03-24"
+updatedAt: "2026-03-24"
+thumbnail: "/images/articles/dev-environment.webp"
+author: "田中俊輔"
+featured: false
+---
+
+## はじめに
+
+「AIを使って開発してみたい」と思ったとき、最初のハードルは環境構築です。この記事では、2026年時点でAI開発を始めるために必要な環境を、一つずつ丁寧に構築していきます。
+
+プログラミング経験がなくても大丈夫です。手順通りに進めれば、AI開発をスタートできる環境が整います。
+
+## 必要なもの
+
+AI開発を始めるために最低限必要なツールは以下の3つです。
+
+1. **Node.js** -- JavaScriptの実行環境
+2. **Claude Code** -- AIアシスタント（CLI）
+3. **Cursor** -- AIが統合されたコードエディタ
+
+### 推奨スペック
+
+| 項目 | 最低要件 | 推奨 |
+|------|---------|------|
+| OS | macOS 12+ / Windows 10+ | macOS 14+ |
+| メモリ | 8GB | 16GB以上 |
+| ストレージ | 10GB空き | 20GB以上空き |
+| ネットワーク | ブロードバンド | 安定した回線 |
+
+## Step 1: Node.jsのインストール
+
+Node.jsは、JavaScriptをパソコン上で実行するための環境です。AI開発ツールの多くがNode.jsを基盤としています。
+
+### macOSの場合
+
+ターミナルを開き、以下のコマンドを実行します。
+
+```bash
+# Homebrewがない場合はまずインストール
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Node.jsをインストール
+brew install node
+
+# バージョン確認
+node --version
+npm --version
+```
+
+### Windowsの場合
+
+1. [Node.js公式サイト](https://nodejs.org)にアクセス
+2. LTS版をダウンロード
+3. インストーラーの指示に従ってインストール
+4. コマンドプロンプトで `node --version` を実行して確認
+
+## Step 2: Claude Codeのセットアップ
+
+Claude Codeは、ターミナルから使えるAIアシスタントです。
+
+### インストール
+
+```bash
+# Claude Codeをグローバルインストール
+npm install -g @anthropic-ai/claude-code
+
+# インストール確認
+claude --version
+```
+
+### 初期設定
+
+初回起動時にAPIキーの設定が必要です。
+
+```bash
+# Claude Codeを起動
+claude
+
+# 画面の指示に従ってログインまたはAPIキーを設定
+```
+
+### CLAUDE.mdの作成
+
+プロジェクトのルートに `CLAUDE.md` を作成すると、Claude Codeの動作をカスタマイズできます。
+
+```markdown
+# CLAUDE.md
+
+## プロジェクト概要
+このプロジェクトは...
+
+## 技術スタック
+- Next.js 15
+- TypeScript
+- Tailwind CSS
+
+## コーディング規約
+- TypeScript strict modeを使用
+- コンポーネントはfunctional componentのみ
+```
+
+## Step 3: Cursorのインストール
+
+CursorはAI機能が統合されたコードエディタです。VS Codeベースなので、操作感は馴染みやすいです。
+
+### インストール手順
+
+1. Cursor公式サイトからダウンロード
+2. アプリケーションフォルダにドラッグ＆ドロップ
+3. 起動してアカウントを作成
+
+### おすすめの初期設定
+
+Cursorを最大限活用するための設定です。
+
+- **AIモデル**: Claude Sonnetを推奨（速度と品質のバランスが良い）
+- **Auto-apply**: 有効にすると、AIの提案を自動で適用
+- **日本語対応**: 設定から言語を日本語に変更
+
+## 最初のプロジェクトを作成してみよう
+
+環境が整ったら、実際にプロジェクトを作成してみましょう。
+
+```bash
+# 作業ディレクトリを作成
+mkdir my-first-ai-project
+cd my-first-ai-project
+
+# Claude Codeを起動
+claude
+
+# Claude Codeに指示
+# 「Next.jsプロジェクトをTypeScriptで初期化してください」
+```
+
+Claude Codeが自動的にプロジェクトを作成し、必要なファイルを生成してくれます。
+
+## トラブルシューティング
+
+### よくある問題
+
+**Node.jsのバージョンが古い**
+
+```bash
+# 現在のバージョンを確認
+node --version
+
+# Homebrewでアップデート
+brew upgrade node
+```
+
+**パーミッションエラー**
+
+```bash
+# npmのグローバルディレクトリの権限を修正
+sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
+```
+
+## まとめ
+
+AI開発の環境構築は、一度行えば長く使える投資です。ここで紹介した3つのツール（Node.js、Claude Code、Cursor）があれば、ほとんどのAI開発プロジェクトに対応できます。
+
+環境が整ったら、まずは小さなプロジェクトから始めてみてください。AIと一緒にコードを書く体験は、開発の概念を大きく変えてくれるはずです。

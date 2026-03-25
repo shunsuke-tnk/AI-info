@@ -1,0 +1,240 @@
+@import "tailwindcss";
+
+/* === AI Shelf デザインシステム === */
+
+:root {
+  /* カラーパレット: Deep Vivid */
+  --color-slate-blue: #4338CA;      /* ディープインディゴ (primary) */
+  --color-dusty-rose: #BE185D;      /* ディープマゼンタ (accent) */
+  --color-pale-sage: #6D28D9;       /* バイオレット (secondary) */
+  --color-snow-white: #FFFFFF;      /* ホワイト */
+  --color-warm-gray: #F1F5F9;      /* クールグレー背景 */
+  --color-deep-slate: #0F172A;     /* インクブラック */
+  --color-cool-gray: #475569;      /* ダークスレート */
+  --color-light-border: #E2E8F0;   /* ボーダー */
+
+  --background: var(--color-snow-white);
+  --foreground: var(--color-deep-slate);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* カスタムカラー */
+  --color-slate-blue: var(--color-slate-blue);
+  --color-dusty-rose: var(--color-dusty-rose);
+  --color-pale-sage: var(--color-pale-sage);
+  --color-snow-white: var(--color-snow-white);
+  --color-warm-gray: var(--color-warm-gray);
+  --color-deep-slate: var(--color-deep-slate);
+  --color-cool-gray: var(--color-cool-gray);
+  --color-light-border: var(--color-light-border);
+
+  /* フォントファミリー */
+  --font-heading: var(--font-noto-sans);
+  --font-body: var(--font-biz-udp);
+  --font-ui: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
+}
+
+/* === ベーススタイル === */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), sans-serif;
+  font-feature-settings: "palt";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 見出しスタイル */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), sans-serif;
+  color: var(--color-deep-slate);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* 記事本文のタイポグラフィ */
+.prose-article {
+  font-size: 1rem;
+  line-height: 1.9;
+  max-width: 680px;
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 768px) {
+  .prose-article {
+    font-size: 1.0625rem;
+  }
+}
+
+/* コードブロック */
+pre, code {
+  font-family: var(--font-mono), monospace;
+}
+
+/* セレクション */
+::selection {
+  background-color: #4338CA22;
+}
+
+/* フォーカスリング */
+:focus-visible {
+  outline: 2px solid var(--color-slate-blue);
+  outline-offset: 2px;
+}
+
+/* 記事本文の要素スタイル */
+.prose-article h2 {
+  margin-top: 2.5em;
+  margin-bottom: 0.8em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid var(--color-light-border);
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+.prose-article h3 {
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.prose-article p {
+  margin-bottom: 1.4em;
+}
+
+.prose-article ul, .prose-article ol {
+  margin-bottom: 1.4em;
+  padding-left: 1.5em;
+}
+
+.prose-article li {
+  margin-bottom: 0.4em;
+}
+
+.prose-article ul li {
+  list-style-type: disc;
+}
+
+.prose-article ol li {
+  list-style-type: decimal;
+}
+
+.prose-article a {
+  color: var(--color-slate-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-article a:hover {
+  color: var(--color-dusty-rose);
+}
+
+.prose-article blockquote {
+  border-left: 3px solid var(--color-pale-sage);
+  padding-left: 1em;
+  margin: 1.5em 0;
+  color: var(--color-cool-gray);
+}
+
+.prose-article pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 1.25em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1.5em 0;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.prose-article code:not(pre code) {
+  background: var(--color-warm-gray);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-size: 0.875em;
+}
+
+.prose-article .table-wrapper {
+  overflow-x: auto;
+  margin: 1.5em 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.prose-article table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  min-width: 400px;
+}
+
+.prose-article th, .prose-article td {
+  padding: 0.6em 1em;
+  border: 1px solid var(--color-light-border);
+  text-align: left;
+}
+
+.prose-article th {
+  background: var(--color-warm-gray);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.prose-article strong {
+  font-weight: 700;
+  color: var(--color-deep-slate);
+}
+
+.prose-article hr {
+  border: none;
+  border-top: 1px solid var(--color-light-border);
+  margin: 2.5em 0;
+}
+
+/* line-clamp ユーティリティ */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* グラデーションテキスト */
+.text-gradient {
+  background: linear-gradient(135deg, #4338CA, #6D28D9, #BE185D);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* グラデーションテキスト（ダーク背景用、より明るい色） */
+.text-gradient-light {
+  background: linear-gradient(135deg, #c4b5fd, #e9d5ff, #fbcfe8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* グラデーションボーダー */
+.border-gradient {
+  border-image: linear-gradient(135deg, #4338CA, #6D28D9, #BE185D) 1;
+}
+
+/* スクロールバー（控えめに） */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-cool-gray);
+  border-radius: 3px;
+}
