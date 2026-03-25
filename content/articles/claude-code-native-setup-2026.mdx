@@ -1,0 +1,179 @@
+---
+title: "Claude Code ネイティブ版セットアップガイド（2026年版）"
+slug: "claude-code-native-setup-2026"
+description: "Claude Codeのネイティブ版インストール手順を解説。Mac・Windows対応、npm版からの移行方法まで。"
+category: "setup"
+tools: ["claude"]
+tasks: ["development"]
+tags: ["Claude Code", "セットアップ", "ネイティブ版"]
+publishedAt: "2026-03-26"
+updatedAt: "2026-03-26"
+thumbnail: "/images/articles/claude-code-native.webp"
+author: "田中俊輔"
+featured: true
+---
+
+## なぜネイティブ版？
+
+2026年、Claude Codeはnpm版からネイティブ版へと移行しました。ネイティブ版を使うべき理由は3つあります。
+
+### 依存関係ゼロ
+
+Node.jsのインストールもnpmのPATH設定も不要です。ダウンロードしたらすぐに使えます。開発環境を持っていない人でも、Claude Codeを最初のツールとして始められます。
+
+### 自動アップデート
+
+バックグラウンドで最新版に自動更新されます。手動で `npm update` を実行する必要がありません。常に最新の機能とセキュリティパッチが適用された状態を維持できます。
+
+### 安定性の向上
+
+npm版で発生していた以下のトラブルから解放されます。
+
+- Node.jsバージョンの検出エラー
+- PATHの設定ミス
+- グローバルインストールの権限問題
+- パッケージの依存関係の競合
+
+## Mac / Linux セットアップ手順
+
+### Step 1: インストーラーを実行
+
+ターミナルを開き、以下のコマンドを実行します。
+
+```bash
+curl -fsSL https://claude.ai/install.sh | sh
+```
+
+このコマンドだけでインストールは完了します。Node.jsもnpmも不要です。
+
+### Step 2: ターミナルを再起動
+
+インストール後、ターミナルを一度閉じて開き直してください。PATHの反映に必要です。
+
+### Step 3: インストール確認
+
+```bash
+claude --version
+```
+
+`2.1.81 (Claude Code)` のようにバージョンが表示されれば成功です。
+
+### Step 4: ログインして起動
+
+プロジェクトのディレクトリに移動してから起動します。
+
+```bash
+cd ~/my-project
+claude
+```
+
+ブラウザが開くので、画面の指示に従ってログインしてください。
+
+**注意**: Claude Codeを利用するには、Pro / Max / Teams / Enterprise / Console のいずれかのアカウントが必要です。無料プランでは利用できません。
+
+## Windows セットアップ手順
+
+### Step 0: Git for Windows をインストール
+
+Windows版のClaude Codeを動かすには、Git for Windowsが前提条件です。まだ入っていない場合は先にインストールしてください。
+
+ダウンロード: https://gitforwindows.org
+
+Git for Windows がないと Claude Code は起動しません。
+
+### Step 1: インストーラーを実行
+
+PowerShellを**管理者として**開き、以下を実行します。
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+### Step 2: ターミナルを再起動
+
+PowerShellを一度閉じて、開き直してください。
+
+### Step 3: インストール確認
+
+```powershell
+claude --version
+```
+
+「コマンドが見つかりません」と出た場合は、以下を試してください。
+
+1. ターミナルを再起動する（PATHの反映）
+2. それでもダメならPCを再起動する
+
+### Step 4: ログインして起動
+
+```powershell
+cd C:\Users\YourName\my-project
+claude
+```
+
+ブラウザが開くので、画面の指示に従ってログインしてください。PowerShell、CMD、Git Bash のいずれからでも起動できます。
+
+## npm版からの移行方法
+
+すでにnpm版のClaude Codeを使っている場合、以下の手順で移行できます。
+
+### Step 1: npm版をアンインストール
+
+```bash
+npm uninstall -g @anthropic-ai/claude-code
+```
+
+### Step 2: ネイティブ版をインストール
+
+Mac / Linuxの場合:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | sh
+```
+
+Windowsの場合:
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+### Step 3: 設定の引き継ぎ
+
+CLAUDE.md、メモリ、設定ファイルはそのまま引き継がれます。再設定は不要です。
+
+## どちらのバージョンか確認する方法
+
+自分が使っているのがネイティブ版かnpm版かは、以下のコマンドで確認できます。
+
+Mac:
+
+```bash
+which claude
+```
+
+Windows:
+
+```powershell
+where claude
+```
+
+表示されるパスで判別できます。
+
+| 表示されるパス | バージョン |
+|---|---|
+| `/usr/local/bin/claude` | ネイティブ版 |
+| `~/.claude/bin/claude` | ネイティブ版 |
+| `...node_modules/.bin/claude` | npm版（要移行） |
+| `~/.npm-global/bin/claude` | npm版（要移行） |
+
+npm版のパスが表示された場合は、上記の移行手順に従ってネイティブ版に切り替えることを推奨します。
+
+## まとめ
+
+Claude Codeのネイティブ版は、依存関係ゼロ・自動アップデート・安定性向上の3つのメリットがあります。
+
+- Mac / Linux: `curl -fsSL https://claude.ai/install.sh | sh`
+- Windows: `irm https://claude.ai/install.ps1 | iex`（要Git for Windows）
+- npm版からの移行: アンインストール後にネイティブ版をインストールするだけ
+
+まだnpm版を使っている方は、このタイミングで移行することをおすすめします。
