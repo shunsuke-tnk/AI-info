@@ -1,0 +1,230 @@
+---
+title: ".claude/ フォルダ完全解剖ガイド -- CLAUDE.md・コマンド・スキル・権限設定"
+slug: "claude-code-dot-claude-folder-guide"
+description: "Claude Codeの.claude/フォルダを徹底解説。CLAUDE.md、カスタムコマンド、スキル、エージェント、権限設定まで、すべてを体系的に解説します。"
+category: "setup"
+tools: ["claude"]
+tasks: ["development"]
+tags: ["Claude Code", ".claude", "CLAUDE.md", "カスタムコマンド", "スキル"]
+publishedAt: "2026-03-26"
+updatedAt: "2026-03-26"
+thumbnail: "/images/articles/claude-folder-guide.webp"
+author: "田中俊輔"
+featured: true
+---
+
+## はじめに -- .claude/ フォルダとは？
+
+Claude Codeを使っていると、プロジェクトのルートに `.claude/` というフォルダが出現します。多くのユーザーはその存在を知っていても、中身を開いたことがありません。しかし、このフォルダこそがClaude Codeの「コントロールセンター」です。
+
+このフォルダには、Claudeへの指示内容、カスタムコマンド、権限ルール、さらにはセッション間のメモリまで、すべてが格納されています。正しく理解・設定することで、Claude Codeをチームのニーズに合わせて正確にカスタマイズできます。
+
+## 2つの .claude/ フォルダ
+
+意外に知られていませんが、`.claude/` ディレクトリは実は2つ存在します。
+
+| 項目 | プロジェクト .claude/ | グローバル ~/.claude/ |
+|------|---------------------|---------------------|
+| 場所 | プロジェクトルート | ホームディレクトリ |
+| 用途 | チーム共有の設定 | 個人の環境設定 |
+| Git管理 | コミット対象 | コミット対象外 |
+| 含まれるもの | CLAUDE.md, settings.json, commands/, rules/, skills/, agents/ | CLAUDE.md, settings.json, commands/, skills/, agents/, projects/ |
+
+プロジェクトレベルはチーム全員で共有するもの。グローバルはあなた個人の設定です。
+
+## CLAUDE.md -- Claude の取扱説明書
+
+`.claude/` フォルダ全体で最も重要なファイルです。Claude Codeのセッション開始時、最初に読み込まれるのがこのファイルです。システムプロンプトに直接ロードされ、セッション全体を通して参照され続けます。
+
+つまり、**CLAUDE.mdに書いたことは、Claudeが必ず従います。**
+
+### CLAUDE.md に書くべきこと
+
+- ビルド・テスト・リントのコマンド（`npm run test`, `make build` など）
+- 主要なアーキテクチャ上の決定事項（「Turborepoのモノレポ構成」など）
+- 落とし穴・注意点（「TypeScript strictモードON、未使用変数はエラー」など）
+- インポート規則、命名パターン、エラーハンドリング方針
+- 主要モジュールのファイル・フォルダ構成
+
+### 書くべきでないこと
+
+- リンターやフォーマッタの設定ファイルに書くべき内容
+- リンク先で参照できるドキュメント全文
+- 理論を長々と説明する文章
+
+CLAUDE.mdは**200行以内**に収めましょう。長くなるとコンテキストを消費しすぎ、指示の遵守率が下がります。
+
+### 効果的な記述例
+
+```markdown
+# Project: Acme API
+
+## Commands
+npm run dev    # Start dev server
+npm run test   # Run tests (Jest)
+npm run lint   # ESLint + Prettier check
+
+## Architecture
+- Express REST API, Node 20
+- PostgreSQL via Prisma ORM
+
+## Conventions
+- Use zod for request validation
+- Return shape: { data, error }
+- Never expose stack traces
+```
+
+わずか約20行で、Claudeがこのコードベースで生産的に作業するために必要なすべての情報を提供しています。
+
+### CLAUDE.local.md -- 個人用の上書き設定
+
+チーム全体ではなく、自分だけの好みを設定したい場合は、プロジェクトルートに `CLAUDE.local.md` を作成します。自動的に `.gitignore` されるため、個人的な設定がリポジトリに入ることはありません。
+
+## rules/ フォルダ -- モジュール式の指示管理
+
+CLAUDE.mdが大きくなりすぎたら、`rules/` フォルダで分割管理します。`.claude/rules/` 内の各マークダウンファイルは、CLAUDE.mdと一緒に自動的に読み込まれます。
+
+### フォルダ構成例
+
+```
+.claude/rules/
+├── code-style.md
+├── testing.md
+├── api-conventions.md
+└── security.md
+```
+
+### パススコープ付きルール
+
+YAMLフロントマターで `paths` を指定すると、Claudeが該当ファイルを編集しているときだけルールが有効になります。
+
+```yaml
+---
+paths:
+  - "src/api/**/*.ts"
+---
+# API Design Rules
+- All handlers return { data, error } shape
+```
+
+`paths` が指定されていないルールファイルは、すべてのセッションで無条件にロードされます。
+
+## commands/ フォルダ -- カスタムスラッシュコマンド
+
+`.claude/commands/` にマークダウンファイルを置くと、それがスラッシュコマンドになります。例えば `review.md` を作成すると `/project:review` が使えるようになります。
+
+### コマンドの仕組み
+
+バッククォート構文でシェルコマンドを実行し、その出力をプロンプトに埋め込めます。`$ARGUMENTS` でコマンドに引数を渡すことも可能です。
+
+| ファイル名 | コマンド名 | 用途例 |
+|-----------|-----------|-------|
+| review.md | /project:review | ブランチの差分をレビュー |
+| fix-issue.md | /project:fix-issue | GitHub Issueの調査・修正 |
+| deploy.md | /project:deploy | デプロイ手順の実行 |
+
+### プロジェクト vs 個人コマンド
+
+- **プロジェクトコマンド**（`.claude/commands/`）: チームで共有、`/project:xxx` で呼び出し
+- **個人コマンド**（`~/.claude/commands/`）: 全プロジェクトで使用可能、`/user:xxx` で呼び出し
+
+## skills/ フォルダ -- 自動起動ワークフロー
+
+スキルはコマンドと似ていますが、根本的に異なる点があります。コマンドはユーザーが明示的にスラッシュで呼び出します。**スキルは会話の文脈を監視し、タスクが説明文と一致したとき自動的に起動します。**
+
+### スキルの構造
+
+```
+.claude/skills/
+├── security-review/
+│   ├── SKILL.md
+│   └── DETAILED_GUIDE.md
+└── deploy/
+    ├── SKILL.md
+    └── templates/
+```
+
+### コマンドとの違い
+
+| 比較項目 | commands/（コマンド） | skills/（スキル） |
+|---------|---------------------|-------------------|
+| 起動方法 | ユーザーがスラッシュで明示的に呼び出し | Claudeが自動判定して起動 |
+| ファイル構成 | 単一のマークダウンファイル | ディレクトリ（複数ファイル可） |
+| 補足ファイル | なし | @参照で関連ファイルを読み込み可能 |
+| ユースケース | 定型作業の実行 | 複雑なワークフローのパッケージ化 |
+
+## agents/ フォルダ -- 専門サブエージェント
+
+タスクが複雑で専門家の視点が必要な場合、`.claude/agents/` にサブエージェントのペルソナを定義できます。各エージェントは独自のシステムプロンプト、ツールアクセス、モデル設定を持ちます。
+
+### エージェントの設定項目
+
+| 設定項目 | 説明 | 例 |
+|---------|------|---|
+| name | エージェント名 | code-reviewer |
+| description | 起動条件の説明 | PRレビュー時に自動起動 |
+| model | 使用するモデル | sonnet / haiku / opus |
+| tools | 許可するツール | Read, Grep, Glob |
+
+読み取り専用の作業にはHaikuなど軽量モデルを割り当て、重要な作業にはSonnet/Opusを使い分けましょう。
+
+## settings.json -- 権限とプロジェクト設定
+
+`settings.json` はClaudeが何を許可され、何が禁止されているかを制御します。`allow` リストと `deny` リストで、ツールの実行権限を細かく設定できます。
+
+### 許可・拒否のルール
+
+| リスト | 動作 | 推奨設定例 |
+|-------|------|-----------|
+| allow | 確認なしで実行可能 | `Bash(npm run *)`, `Bash(git *)`, `Read`, `Write`, `Edit` |
+| deny | 完全にブロック | `Bash(rm -rf *)`, `Bash(curl *)`, `Read(./.env)` |
+| どちらにもない | 実行前に確認を求める | 想定外のコマンド全般 |
+
+### settings.local.json
+
+CLAUDE.local.mdと同じ考え方で、個人的な権限変更用に `.claude/settings.local.json` を作成できます。自動的に `.gitignore` されます。
+
+## グローバル ~/.claude/ フォルダ
+
+ホームディレクトリの `~/.claude/` は、すべてのプロジェクトに適用される個人設定を管理します。
+
+- `~/.claude/CLAUDE.md` -- すべてのセッションに読み込まれる個人的なコーディング方針
+- `~/.claude/projects/` -- プロジェクトごとのセッション履歴と自動メモリ
+- `~/.claude/commands/` -- プロジェクト横断の個人コマンド
+- `~/.claude/skills/` -- プロジェクト横断の個人スキル
+- `~/.claude/agents/` -- プロジェクト横断の個人エージェント
+
+## 実践的なセットアップ手順
+
+### ステップ 1: CLAUDE.md の生成
+
+Claude Codeで `/init` を実行します。プロジェクトを分析してCLAUDE.mdの雛形を自動生成します。
+
+```bash
+claude
+# セッション内で /init を実行
+```
+
+### ステップ 2: 権限設定
+
+`.claude/settings.json` に allow/deny ルールを設定します。最低限、ビルドコマンドの許可と `.env` の読み取り拒否を設定しましょう。
+
+### ステップ 3: カスタムコマンドの作成
+
+よく使うワークフロー用にコマンドを1〜2個作成します。コードレビューとIssue修正がおすすめです。
+
+### ステップ 4: ルールの分割
+
+CLAUDE.mdが膨らんできたら、`.claude/rules/` に分割します。パススコープを活用しましょう。
+
+### ステップ 5: 個人設定
+
+`~/.claude/CLAUDE.md` に個人的な好み（「常に型定義を先に書く」など）を設定します。
+
+**95%のプロジェクトはステップ3までで十分です。** スキルとエージェントは、繰り返し発生する複雑なワークフローが出てきたときに追加しましょう。
+
+## まとめ
+
+`.claude/` フォルダは、「あなたが誰で、プロジェクトが何をし、どのルールに従うべきか」をClaudeに伝えるプロトコルです。明確に定義すればするほど、Claudeの修正に費やす時間が減り、有益な作業に充てる時間が増えます。
+
+**CLAUDE.mdが最もレバレッジの高いファイルです。** まずそこを正しく設定しましょう。他のすべてはその最適化です。
