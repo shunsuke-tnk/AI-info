@@ -2,12 +2,14 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import { CodeBlock } from "./code-block";
+import { Callout } from "./callout";
 
 interface ArticleBodyProps {
   content: string;
 }
 
 const mdxComponents = {
+  Callout,
   pre: ({ children }: React.ComponentProps<"pre">) => {
     const child = children as React.ReactElement<{
       className?: string;
