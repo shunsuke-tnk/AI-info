@@ -1,0 +1,376 @@
+---
+title: "OpenClaw セットアップガイド Mac / Linux版（2026年版）"
+slug: "openclaw-setup-mac-2026"
+description: "オープンソースAIエージェント「OpenClaw」をMac/Linuxにインストールする手順を初心者向けに解説。APIキー設定から最初の起動まで。"
+category: "setup"
+tools: ["other"]
+tasks: ["development", "general"]
+tags: ["OpenClaw", "AIエージェント", "セットアップ", "Mac", "Linux"]
+publishedAt: "2026-03-26"
+updatedAt: "2026-03-26"
+thumbnail: "/images/articles/openclaw-mac.webp"
+author: "田中俊輔"
+featured: true
+---
+
+## この記事でできるようになること
+
+この記事を最後まで読み進めると、以下のことができるようになります。
+
+- OpenClaw（オープンソースのAIエージェント）が何かを理解する
+- Mac または Linux に OpenClaw をインストールする
+- AIモデル（Claude、GPT、Geminiなど）と接続して、最初のセッションを開始する
+- ダッシュボード（管理画面）を開いて動作を確認する
+
+プログラミングの経験がなくても、手順通りに進めれば完了します。
+
+## OpenClawとは何か
+
+OpenClaw（オープンクロー）は、**自分のパソコンの上で動くオープンソースのAIエージェント**です。2026年2月にローンチされ、GitHubで68,000スター以上を獲得した、今最も注目されているAIツールの一つです。
+
+### 「AIエージェント」とは？
+
+通常のAIチャット（ChatGPTやClaudeのブラウザ版）は、テキストで質問すると回答が返ってくる「対話型」のツールです。
+
+一方、AIエージェントは**自分で考え、判断し、実際にアクションを起こす**AIです。例えば、「明日の会議の議事録を作成して、参加者にメールで送って」と指示すると、ファイル作成からメール送信まで自律的に実行します。
+
+<Callout type="info" title="AIチャットとAIエージェントの違い">
+AIチャットは「質問に答える」だけのツールです。AIエージェントは「タスクを実行する」ツールです。OpenClawは後者で、シェルコマンドの実行、ファイルの読み書き、ブラウザ操作、メール送信など、さまざまなアクションを自律的に行えます。人間は指示を出して結果を確認するだけです。
+</Callout>
+
+### OpenClawの特徴
+
+**1. セルフホスト型 -- データが外に出ない**
+
+OpenClawはあなた自身のパソコン上で動作します。ChatGPTやClaudeのように外部のサーバーにデータを送るのではなく、すべてがローカル（自分のマシン上）で処理されます。会話履歴や設定もローカルのファイルに保存されるため、プライバシーを保てます。
+
+<Callout type="info" title="「セルフホスト」とは">
+「ホスト」は「動かす場所」のことです。ChatGPTはOpenAIのサーバーで動いている（OpenAIがホストしている）ので、あなたのデータはOpenAIに送られます。セルフホストは「自分で動かす」ということ。データは自分のパソコンから外に出ません。
+</Callout>
+
+**2. モデル非依存 -- 好きなAIを選べる**
+
+OpenClawは特定のAI会社に縛られていません。以下のAIモデルをすべて使えます。
+
+| プロバイダー | 代表的なモデル | 特徴 |
+|-------------|-------------|------|
+| Anthropic | Claude Sonnet 4.6 / Opus 4.6 | 推論品質が高い。公式推奨 |
+| OpenAI | GPT-4o / GPT-4o-mini | 汎用性が高い |
+| Google | Gemini 3 Pro | 200万トークンの長いコンテキスト |
+| Ollama（ローカル） | DeepSeek Coder / Llama 3.3 | 完全オフライン、API料金なし |
+
+**3. マルチチャネル対応 -- どこからでも使える**
+
+WhatsApp、Telegram、Discord、Slack、LINE、iMessageなど、20以上のメッセージングアプリからOpenClawのエージェントに指示を出せます。スマートフォンからも操作できます。
+
+**4. AgentSkills -- 機能を拡張できる**
+
+AgentSkills（エージェントスキル）は、OpenClawの機能を拡張するモジュール（追加パーツ）です。公式レジストリ「ClawHub」には2,800以上のスキルが公開されており、ブラウザ自動操作、メール管理、カレンダー連携、コード生成など、さまざまな機能を追加できます。
+
+**5. 完全無料（オープンソース）**
+
+OpenClaw自体はMITライセンス（自由に使える許可証）で完全無料です。ただし、AIモデルのAPI利用料（AnthropicやOpenAIに支払うモデル使用料）は別途かかります。ローカルモデル（Ollama）を使えば、API料金もゼロです。
+
+## 前提条件 -- 始める前に確認すること
+
+### 必要なソフトウェア
+
+OpenClawを動かすには、**Node.js**（JavaScriptの実行環境）が必要です。
+
+ターミナルを開いて、以下のコマンドで確認してください。
+
+```bash
+node -v
+```
+
+`v22.14.0` 以上のバージョンが表示されればOKです。
+
+**Node.jsが入っていない場合:**
+
+```bash
+# Homebrewでインストール（Macの場合）
+brew install node
+```
+
+<Callout type="info" title="Homebrewとは">
+Homebrew（ホームブルー）は、Macでソフトウェアを簡単にインストールするためのツールです。まだ入っていない場合は、ターミナルで以下を実行してください: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+</Callout>
+
+Linuxの場合:
+
+```bash
+# Ubuntu/Debianの場合
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+### 必要なAPIキー
+
+OpenClawを使うには、AIモデルのAPIキー（AIサービスにアクセスするための認証コード）が最低1つ必要です。
+
+| プロバイダー | APIキーの取得先 | 料金 |
+|-------------|---------------|------|
+| Anthropic | console.anthropic.com | 従量課金 |
+| OpenAI | platform.openai.com | 従量課金 |
+| Google | ai.google.dev | 無料枠あり |
+| Ollama（ローカル） | 不要 | 無料 |
+
+<Callout type="tip" title="まずはどのプロバイダーを選ぶべき？">
+OpenClawの公式ドキュメントでは、Anthropic（Claude）を最推奨しています。推論品質とセキュリティ（プロンプトインジェクションへの耐性）のバランスが最も優れているためです。コストを抑えたい場合は、Ollama（ローカルモデル）を選ぶと完全無料で始められます。
+</Callout>
+
+### 推奨スペック
+
+| 項目 | 最低要件 | 推奨 |
+|------|---------|------|
+| OS | macOS 12以上 / Ubuntu 22.04以上 | macOS 14以上 |
+| メモリ | 8GB | 16GB以上（ローカルモデル使用時は32GB以上） |
+| ストレージ | 1GB空き | 5GB以上（ローカルモデル使用時は20GB以上） |
+| ネットワーク | インターネット接続 | 安定した回線 |
+
+## セットアップ手順
+
+### Step 1: ターミナルを開く
+
+**Macの場合**: Spotlight検索（Command + スペース）で「ターミナル」と入力してEnterを押します。
+
+**Linuxの場合**: ターミナルアプリケーションを開きます（Ctrl + Alt + T でも開けます）。
+
+### Step 2: OpenClawをインストールする
+
+以下のコマンドをターミナルにコピー＆ペーストして実行してください。
+
+```bash
+npm install -g openclaw@latest
+```
+
+<Callout type="info" title="このコマンドが何をしているか">
+`npm install` はNode.jsのパッケージ（ソフトウェア部品）をインストールするコマンドです。`-g` は「グローバル」の略で、パソコン全体で使えるようにインストールする設定です。`openclaw@latest` は「OpenClawの最新版」を指定しています。
+</Callout>
+
+インストールが完了すると、ターミナルに完了メッセージが表示されます。
+
+**別の方法: インストールスクリプトを使う場合**
+
+npmを使わない方法もあります。以下のワンライナー（1行のコマンド）でもインストールできます。
+
+```bash
+curl -fsSL https://openclaw.ai/install.sh | bash
+```
+
+### Step 3: オンボーディングウィザードを実行する
+
+インストールが完了したら、初期設定ウィザード（対話形式の設定画面）を実行します。
+
+```bash
+openclaw onboard --install-daemon
+```
+
+<Callout type="info" title="「--install-daemon」とは">
+「デーモン」は、バックグラウンド（裏側）で常に動き続けるプログラムのことです。`--install-daemon` オプションをつけると、OpenClawのGateway（通信の窓口となるプログラム）がmacOSの `launchd`（起動時に自動で立ち上がる仕組み）に登録され、パソコンを再起動してもOpenClawが自動で起動するようになります。
+</Callout>
+
+ウィザードでは、以下の設定を対話形式で聞かれます。
+
+**1. AIプロバイダーの選択**
+
+使いたいAIサービスを選びます。Anthropic（Claude）、OpenAI（GPT）、Google（Gemini）、Ollama（ローカル）などから選べます。
+
+**2. APIキーの入力**
+
+選んだプロバイダーのAPIキーを入力します。APIキーは各プロバイダーの管理画面から取得できます。
+
+**3. デフォルトモデルの設定**
+
+メインで使うAIモデルを選びます。例えばAnthropicなら `claude-sonnet-4-6` がバランスが良くおすすめです。
+
+**4. チャネルとスキルの設定**
+
+メッセージングアプリ（WhatsApp、Telegram等）との連携やスキルの追加を設定できます。初回はスキップしても大丈夫です。後からダッシュボードで追加できます。
+
+### Step 4: インストールを確認する
+
+設定が完了したら、正しくインストールされているか確認します。
+
+```bash
+openclaw doctor
+```
+
+以下のように表示されれば成功です。
+
+```
+✓ Config file found at ~/.openclaw/config.yaml
+✓ Provider: anthropic
+✓ API key format: valid
+✓ Connection test: success (247ms)
+✓ Model access: claude-sonnet-4-6 available
+✓ Gateway: running on port 18789
+```
+
+すべてのチェック項目に「✓」がついていることを確認してください。
+
+<Callout type="warning" title="エラーが出た場合">
+「API key format: invalid」と表示された場合は、APIキーが正しく入力されていない可能性があります。`~/.openclaw/config.yaml` をテキストエディタで開いて、`api_key:` の値を確認してください。キーの前後に余分なスペースが入っていないかも確認しましょう。
+</Callout>
+
+### Step 5: ダッシュボードを開く
+
+OpenClawにはブラウザベースの管理画面（ダッシュボード）が付属しています。
+
+```bash
+openclaw dashboard
+```
+
+ブラウザが自動で開き、`http://localhost:18789` にダッシュボードが表示されます。ここから、エージェントの状態確認、スキルの管理、チャネルの設定など、すべての操作をGUI（グラフィカルな画面）で行えます。
+
+<Callout type="tip" title="ダッシュボードが開かない場合">
+ブラウザが自動で開かない場合は、手動でブラウザのアドレスバーに `http://localhost:18789` と入力してアクセスしてください。`18789` はOpenClawが使用するデフォルトのポート番号（通信の窓口番号）です。
+</Callout>
+
+### Step 6: 最初のメッセージを送る
+
+CLIから直接エージェントに指示を出してみましょう。
+
+```bash
+openclaw agent --message "自己紹介をしてください"
+```
+
+エージェントが応答すれば、セットアップは完了です。
+
+## 設定ファイルの理解
+
+OpenClawの設定ファイルは `~/.openclaw/` フォルダに格納されています。主要な2つのファイルを理解しておきましょう。
+
+### config.yaml -- 基本設定
+
+OpenClawの動作全体を制御する設定ファイルです。オンボーディングウィザードで自動生成されますが、手動で編集することもできます。
+
+```yaml
+# 使用するAIプロバイダーとモデル
+provider: anthropic
+model: claude-sonnet-4-6-20250514
+
+# APIキー設定
+providers:
+  anthropic:
+    api_key: sk-ant-ここにAPIキーを入力
+    base_url: https://api.anthropic.com/v1
+
+# エージェントの動作設定
+agent:
+  max_tokens: 4096        # 1回の応答の最大トークン数
+  temperature: 0.3        # 応答のランダム性（0に近いほど決定的）
+  auto_approve: false     # 自動承認（falseなら毎回確認を求める）
+```
+
+<Callout type="info" title="config.yaml の編集方法">
+ターミナルからテキストエディタで開けます: `nano ~/.openclaw/config.yaml` または `code ~/.openclaw/config.yaml`（VS Codeの場合）。変更を保存したら、`openclaw gateway restart` でGatewayを再起動すると反映されます。
+</Callout>
+
+### models.yaml -- モデルの使い分け設定
+
+複数のAIモデルを使い分けたい場合に設定します。タスクの内容に応じて、高性能モデルと低コストモデルを自動で切り替えられます。
+
+```yaml
+tiers:
+  primary:
+    provider: anthropic
+    model: claude-sonnet-4-6-20250514    # メイン（高品質）
+  economy:
+    provider: anthropic
+    model: claude-haiku-3-5-20241022     # サブ（低コスト・高速）
+
+routing:
+  primary_tasks:
+    - code_generation          # コード生成は高品質モデル
+    - architecture_review      # 設計レビューも高品質モデル
+  economy_tasks:
+    - file_summary             # ファイル要約は低コストモデル
+    - simple_question          # 単純な質問も低コストモデル
+```
+
+<Callout type="tip" title="models.yaml は最初は不要">
+models.yaml はオプション（任意設定）です。config.yaml でメインモデルを1つ設定するだけで十分に使えます。コストを最適化したくなったときに追加すればOKです。
+</Callout>
+
+## セキュリティに関する重要な注意
+
+OpenClawはあなたのパソコン上で動き、ファイルの読み書きやコマンドの実行を行います。セキュリティについて以下を理解しておいてください。
+
+### auto_approve は false のままにする
+
+config.yaml の `auto_approve: false` を `true` に変更すると、エージェントがすべてのアクションを確認なしで実行するようになります。便利ですが、**慣れるまでは false のままにしてください**。
+
+### サードパーティスキルは慎重に
+
+ClawHubには多数のスキルが公開されていますが、すべてが安全とは限りません。過去にはCVE-2026-25253（セキュリティの脆弱性）として、悪意のあるスキルがゲートウェイを乗っ取る脆弱性が報告されています。
+
+<Callout type="warning" title="スキル導入時のチェックリスト">
+(1) スキル作成者のGitHubプロフィールを確認する。(2) スキルが要求する権限（ファイルアクセス、ネットワーク等）を確認する。(3) 本番で使う前に、テスト環境で動作を確認する。(4) `openclaw doctor` でセキュリティチェックを定期的に実行する。
+</Callout>
+
+### フロンティアモデルを使う
+
+公式ドキュメントでは、最新・最強のAIモデル（Claude Sonnet 4.6 など）を使うことを推奨しています。最新モデルはプロンプトインジェクション（悪意のある指示を注入する攻撃）への耐性が高いためです。
+
+## トラブルシューティング
+
+### 「command not found: openclaw」と表示される
+
+```bash
+# PATHを確認
+echo $PATH
+
+# npmのグローバルインストール先を確認
+npm config get prefix
+```
+
+npmのグローバルインストール先がPATHに含まれていない場合があります。以下を `~/.zshrc`（Macの場合）に追加してください。
+
+```bash
+export PATH="$(npm config get prefix)/bin:$PATH"
+```
+
+追加後、ターミナルを再起動してください。
+
+### Gateway が起動しない
+
+```bash
+# ステータス確認
+openclaw gateway status
+
+# 手動で起動を試す
+openclaw gateway --port 18789 --verbose
+```
+
+ポート18789が他のプログラムに使用されている場合は、別のポートを指定してください。
+
+```bash
+openclaw gateway --port 18790
+```
+
+### APIキーのエラー
+
+```bash
+# 設定を検証
+openclaw doctor
+```
+
+「Connection test: failed」と表示された場合は、APIキーの有効期限や残高を確認してください。
+
+## まとめ
+
+OpenClawのMac/Linuxへのセットアップ手順を振り返ります。
+
+| ステップ | コマンド |
+|---------|---------|
+| Node.js確認 | `node -v`（v22.14以上） |
+| インストール | `npm install -g openclaw@latest` |
+| 初期設定 | `openclaw onboard --install-daemon` |
+| 動作確認 | `openclaw doctor` |
+| ダッシュボード | `openclaw dashboard` |
+| 最初のメッセージ | `openclaw agent --message "メッセージ"` |
+
+OpenClawは、AIエージェントを自分のパソコンで動かすための強力なツールです。まずはシンプルな使い方から始めて、慣れてきたらスキルやチャネル連携を追加してみてください。
+
+Windows版のセットアップは [OpenClaw セットアップガイド Windows版](/articles/openclaw-setup-windows-2026) をご覧ください。

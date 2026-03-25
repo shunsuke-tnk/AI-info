@@ -1,0 +1,328 @@
+---
+title: "OpenClaw セットアップガイド Windows版（2026年版）"
+slug: "openclaw-setup-windows-2026"
+description: "オープンソースAIエージェント「OpenClaw」をWindowsにインストールする手順を初心者向けに解説。Node.js導入からAPIキー設定、起動確認まで。"
+category: "setup"
+tools: ["other"]
+tasks: ["development", "general"]
+tags: ["OpenClaw", "AIエージェント", "セットアップ", "Windows"]
+publishedAt: "2026-03-26"
+updatedAt: "2026-03-26"
+thumbnail: "/images/articles/openclaw-windows.webp"
+author: "田中俊輔"
+featured: false
+---
+
+## この記事でできるようになること
+
+この記事を最後まで読み進めると、以下のことができるようになります。
+
+- OpenClaw（オープンソースのAIエージェント）が何かを理解する
+- Windows に必要なソフトウェアを揃える
+- OpenClaw をインストールし、AIモデルと接続する
+- ダッシュボード（管理画面）を開いて最初の指示を出す
+
+プログラミングの経験がなくても大丈夫です。すべてのステップにコピー可能なコマンドと解説を用意しています。
+
+## OpenClawとは何か
+
+OpenClaw（オープンクロー）は、**自分のパソコンの上で動くオープンソースのAIエージェント**です。2026年2月にリリースされ、GitHubで68,000スター以上を獲得しました。MITライセンス（自由に使える許可証）で完全無料です。
+
+### 普通のAIチャットと何が違う？
+
+ChatGPTやClaudeのブラウザ版は、テキストで質問すると回答が返ってくる「対話型」のツールです。
+
+OpenClawはそれとは根本的に異なります。**AIが自分で考えて、実際にアクションを起こします。** 例えば以下のようなことができます。
+
+- ファイルの作成・編集・削除
+- シェルコマンド（ターミナルの命令）の実行
+- ブラウザの自動操作
+- メールの送受信
+- カレンダーの管理
+- コードの生成・テスト
+
+<Callout type="info" title="例えるなら">
+普通のAIチャットは「何でも答えてくれる辞書」です。OpenClawは「指示を出すと実際に動いてくれる秘書」です。「会議の議事録を作ってメールで送って」と指示すれば、ファイル作成からメール送信まで自律的に行います。
+</Callout>
+
+### なぜOpenClawが注目されているのか
+
+| 特徴 | 説明 |
+|------|------|
+| セルフホスト型 | 自分のPC上で動くので、データが外部に流出しない |
+| モデル非依存 | Claude、GPT、Gemini、ローカルモデル（Ollama）など自由に選べる |
+| マルチチャネル | WhatsApp、Telegram、Discord、Slack、LINEなど20以上のアプリから操作可能 |
+| 拡張性 | 2,800以上のAgentSkills（追加機能モジュール）で機能を拡張できる |
+| 完全無料 | ソフト自体は無料。AIモデルのAPI料金のみ必要（ローカルモデルなら完全無料） |
+
+## 前提条件 -- 始める前に準備するもの
+
+Windows版のOpenClawを動かすには、以下の2つのソフトウェアが事前に必要です。
+
+### 1. Node.js（必須）
+
+Node.js（ノードジェイエス）は、JavaScriptというプログラミング言語をパソコン上で動かすための実行環境です。OpenClawはNode.jsの上で動作します。
+
+**インストール済みか確認する方法:**
+
+PowerShell（パワーシェル）を開いて、以下を入力してEnterを押してください。
+
+```powershell
+node -v
+```
+
+`v22.14.0` 以上のバージョンが表示されればOKです。表示されない場合は、次の手順でインストールします。
+
+<Callout type="info" title="PowerShellの開き方">
+Windowsのスタートメニュー（画面左下のWindowsロゴ）をクリックし、「PowerShell」と入力して検索します。表示された「Windows PowerShell」をクリックして起動します。
+</Callout>
+
+**Node.jsのインストール手順:**
+
+1. ブラウザで https://nodejs.org にアクセスします
+2. **「LTS」** と書かれた緑色のボタンをクリックしてダウンロードします
+3. ダウンロードしたファイル（`node-v22.x.x-x64.msi`）をダブルクリックします
+4. インストーラーの画面は、すべてデフォルト（初期設定）のまま「Next」→「Install」で進めます
+5. インストールが完了したら、PowerShellを**閉じてもう一度開き直し**、`node -v` で確認します
+
+<Callout type="warning" title="「LTS」を選んでください">
+Node.jsのダウンロードページには「LTS」と「Current」の2つのバージョンがあります。必ず「LTS」（Long Term Support＝長期サポート版）を選んでください。「Current」は最新機能を含みますが、安定性が保証されていません。
+</Callout>
+
+### 2. Git for Windows（必須）
+
+Git（ギット）は、ソースコードのバージョン管理ツールです。OpenClawが内部的に使用するため、インストールが必要です。
+
+**インストール済みか確認する方法:**
+
+```powershell
+git --version
+```
+
+バージョンが表示されればOKです。表示されない場合は、以下の手順でインストールします。
+
+**Git for Windowsのインストール手順:**
+
+1. ブラウザで https://gitforwindows.org にアクセスします
+2. 「Download」ボタンをクリックします
+3. ダウンロードしたファイルを実行します
+4. すべてデフォルト設定のまま「Next」→「Install」で進めます
+5. インストール完了後、PowerShellを**閉じてもう一度開き直し**、`git --version` で確認します
+
+### 3. AIモデルのAPIキー（最低1つ）
+
+OpenClawを使うには、AIモデルのAPIキー（AIサービスにアクセスするための認証コード）が最低1つ必要です。
+
+| プロバイダー | APIキーの取得先 | 料金 |
+|-------------|---------------|------|
+| Anthropic（推奨） | console.anthropic.com | 従量課金 |
+| OpenAI | platform.openai.com | 従量課金 |
+| Google | ai.google.dev | 無料枠あり |
+| Ollama（ローカル） | 不要（PCのみで動作） | 完全無料 |
+
+<Callout type="tip" title="どのプロバイダーを選ぶべき？">
+公式ドキュメントでは **Anthropic（Claude）を最推奨** しています。推論品質とセキュリティのバランスが最も優れているためです。コストをかけたくない場合は Ollama を使えば完全無料で始められますが、PCの性能（メモリ32GB以上推奨）が求められます。
+</Callout>
+
+## セットアップ手順
+
+### Step 1: PowerShellを管理者として開く
+
+スタートメニューで「PowerShell」と検索し、表示された「Windows PowerShell」を**右クリック**して「管理者として実行」を選びます。
+
+<Callout type="warning" title="「管理者として実行」が必要です">
+通常のPowerShellでは、グローバルインストール（パソコン全体で使えるようにするインストール）時に権限エラーが出ることがあります。必ず「管理者として実行」を選んでください。ユーザーアカウント制御（UAC）の確認画面が出たら「はい」を選択します。
+</Callout>
+
+### Step 2: OpenClawをインストールする
+
+管理者PowerShellで以下のコマンドを実行します。
+
+```powershell
+npm install -g openclaw@latest
+```
+
+<Callout type="info" title="このコマンドが何をしているか">
+`npm install` はNode.jsのパッケージ（ソフトウェア部品）をインストールするコマンドです。`-g` は「グローバル」の略で、パソコン全体で使えるようにインストールする設定です。`openclaw@latest` は「OpenClawの最新版」を意味します。
+</Callout>
+
+インストールには数分かかる場合があります。完了メッセージが表示されるまで待ってください。
+
+### Step 3: PowerShellを再起動する
+
+インストールが完了したら、**管理者PowerShellを閉じて、通常のPowerShellを開き直してください**（もう管理者権限は不要です）。
+
+### Step 4: オンボーディングウィザードを実行する
+
+初期設定を行うウィザード（対話形式の設定画面）を起動します。
+
+```powershell
+openclaw onboard --install-daemon
+```
+
+<Callout type="info" title="「デーモン」とは">
+デーモン（daemon）は、バックグラウンド（裏側）で常に動き続けるプログラムのことです。OpenClawのGateway（通信の窓口）がWindowsのサービスとして登録され、パソコンを再起動してもOpenClawが自動的に起動するようになります。
+</Callout>
+
+ウィザードでは以下の設定を対話形式で聞かれます。
+
+**Mode（モード選択）**: 「Quick Start」を選んでください。最小限の設定で始められます。
+
+**AI Provider（AIプロバイダー選択）**: 使いたいAIサービスを選びます。AnthropicやOpenAIなど、事前に取得したAPIキーに対応するプロバイダーを選んでください。
+
+**API Key（APIキー入力）**: 取得したAPIキーを貼り付けます。
+
+**Channels & Skills（チャネルとスキル）**: 初回はすべてスキップして大丈夫です。後からダッシュボード（管理画面）で追加できます。
+
+### Step 5: インストールを確認する
+
+設定が完了したら、正しく動作しているか確認します。
+
+```powershell
+openclaw doctor
+```
+
+以下のように表示されれば成功です。
+
+```
+✓ Config file found at ~/.openclaw/config.yaml
+✓ Provider: anthropic
+✓ API key format: valid
+✓ Connection test: success
+✓ Model access: claude-sonnet-4-6 available
+✓ Gateway: running on port 18789
+```
+
+<Callout type="warning" title="「✗」が表示された場合">
+「✗ API key format: invalid」→ APIキーが正しくない可能性があります。`~/.openclaw/config.yaml` をメモ帳で開いてキーを確認してください。
+
+「✗ Gateway: not running」→ `openclaw gateway --port 18789 --verbose` で手動起動を試してください。エラーメッセージが表示された場合は、ポート18789が他のプログラムに使われている可能性があります。
+</Callout>
+
+### Step 6: ダッシュボードを開く
+
+OpenClawにはブラウザベースの管理画面が付属しています。
+
+```powershell
+openclaw dashboard
+```
+
+ブラウザが自動で開き、`http://localhost:18789` にダッシュボードが表示されます。
+
+ブラウザが自動で開かない場合は、ブラウザのアドレスバーに `http://localhost:18789` と手動で入力してアクセスしてください。
+
+### Step 7: 最初のメッセージを送る
+
+CLIから直接エージェントに指示を出してみましょう。
+
+```powershell
+openclaw agent --message "自己紹介をしてください"
+```
+
+エージェントが応答すれば、セットアップは完了です。
+
+## よく使うコマンド一覧
+
+セットアップが完了した後、日常的に使うコマンドをまとめます。
+
+```powershell
+# Gatewayのステータス確認
+openclaw gateway status
+
+# ダッシュボードを開く
+openclaw dashboard
+
+# エージェントに指示を出す
+openclaw agent --message "ここにメッセージ"
+
+# 設定の検証
+openclaw doctor
+
+# OpenClawのアップデート
+npm update -g openclaw
+
+# Gatewayの再起動
+openclaw gateway restart
+```
+
+## セキュリティに関する重要な注意
+
+OpenClawはパソコン上でファイル操作やコマンド実行を行うため、セキュリティについて理解しておく必要があります。
+
+### auto_approve は false のままに
+
+config.yaml の `auto_approve` を `true` にすると、エージェントがすべてのアクションを確認なしで実行します。便利ですが、慣れるまでは `false`（実行前に毎回確認を求める）のままにしてください。
+
+### サードパーティスキルは慎重に導入する
+
+ClawHub（公式のスキルレジストリ）には多数のスキルが公開されていますが、すべてが安全とは限りません。
+
+<Callout type="warning" title="スキル導入前のチェック">
+(1) スキル作成者のGitHubプロフィールを確認する（信頼できる開発者か）。(2) 要求される権限が妥当か確認する（ファイル要約スキルがメール送信権限を要求していたら怪しい）。(3) 本番で使う前にテスト環境で試す。(4) `openclaw doctor` でセキュリティチェックを定期的に実行する。
+</Callout>
+
+### 最新モデルを使う
+
+公式ドキュメントでは、最新・最強のAIモデルを使うことを推奨しています。最新モデルはプロンプトインジェクション（悪意のある指示をAIに注入する攻撃手法）への耐性が高いためです。
+
+## トラブルシューティング
+
+### 「openclaw は認識されていないコマンドです」
+
+Node.jsのグローバルインストール先がPATH（パソコンがコマンドを探す場所のリスト）に含まれていない可能性があります。
+
+```powershell
+# npmのグローバルインストール先を確認
+npm config get prefix
+```
+
+表示されたパス（例: `C:\Users\YourName\AppData\Roaming\npm`）をシステムのPATH環境変数に追加します。
+
+1. スタートメニューで「環境変数」と検索
+2. 「システム環境変数の編集」を開く
+3. 「環境変数」ボタンをクリック
+4. 「ユーザー環境変数」の `Path` を選んで「編集」
+5. 「新規」をクリックして、上記のパスを追加
+6. 「OK」で閉じて、PowerShellを再起動
+
+### Gatewayが起動しない
+
+```powershell
+# 手動で起動してエラーメッセージを確認
+openclaw gateway --port 18789 --verbose
+```
+
+ポート18789が他のプログラムに使われている場合は、別のポートを使います。
+
+```powershell
+openclaw gateway --port 18790
+```
+
+### APIキー関連のエラー
+
+```powershell
+# 設定を検証
+openclaw doctor
+```
+
+「Connection test: failed」と表示された場合は、以下を確認してください。
+- APIキーの有効期限が切れていないか
+- APIアカウントの残高（クレジット）が残っているか
+- インターネット接続が正常か
+
+## まとめ
+
+OpenClawのWindowsへのセットアップ手順を振り返ります。
+
+| ステップ | 内容 |
+|---------|------|
+| 事前準備 | Node.js LTS + Git for Windows をインストール |
+| インストール | `npm install -g openclaw@latest`（管理者PowerShell） |
+| 初期設定 | `openclaw onboard --install-daemon` |
+| 動作確認 | `openclaw doctor` |
+| ダッシュボード | `openclaw dashboard` |
+| 最初の指示 | `openclaw agent --message "メッセージ"` |
+
+OpenClawは自分のパソコンで動くAIエージェントです。まずは簡単な指示から始めて、慣れてきたらスキルの追加やメッセージングアプリとの連携を試してみてください。
+
+Mac/Linux版のセットアップは [OpenClaw セットアップガイド Mac/Linux版](/articles/openclaw-setup-mac-2026) をご覧ください。
