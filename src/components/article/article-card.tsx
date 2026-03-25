@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Article } from "@/types/article";
 import { CONTENT_CATEGORIES, TOOL_TAGS } from "@/lib/categories";
@@ -19,11 +20,21 @@ export function ArticleCard({ article }: ArticleCardProps) {
     >
       {/* サムネイル領域 */}
       <div className="aspect-[16/9] bg-[var(--color-warm-gray)] relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-[var(--color-cool-gray)] text-sm font-[family-name:var(--font-ui)]">
-            {category?.label}
-          </span>
-        </div>
+        {article.thumbnail ? (
+          <Image
+            src={article.thumbnail}
+            alt={article.title}
+            fill
+            className="object-cover transition-transform duration-200 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-[var(--color-cool-gray)] text-sm font-[family-name:var(--font-ui)]">
+              {category?.label}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="p-5">
