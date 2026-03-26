@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { CONTENT_CATEGORIES } from "@/lib/categories";
 import { getAllArticles, getFeaturedArticles } from "@/lib/mdx";
@@ -11,61 +12,18 @@ export default function Home() {
   return (
     <>
       {/* ヒーローセクション */}
-      <section
-        className="relative w-full overflow-hidden"
-        style={{
-          background: "linear-gradient(135deg, #2e1065 0%, #4c1d95 25%, #5b21b6 50%, #6d28d9 75%, #4c1d95 100%)",
-        }}
-      >
-        {/* 装飾: グロウオーブ */}
-        <div
-          className="absolute w-[700px] h-[500px]"
-          style={{
-            top: "-20%",
-            right: "-10%",
-            background: "radial-gradient(ellipse, rgba(129,140,248,0.3), transparent 65%)",
-          }}
+      <section className="relative w-full">
+        <Image
+          src="/images/hero/2.png"
+          alt="AI Shelf"
+          width={2000}
+          height={800}
+          className="w-full h-auto"
+          priority
         />
-        <div
-          className="absolute w-[500px] h-[400px]"
-          style={{
-            bottom: "-20%",
-            right: "10%",
-            background: "radial-gradient(ellipse, rgba(236,72,153,0.2), transparent 65%)",
-          }}
-        />
-        <div
-          className="absolute w-[400px] h-[350px]"
-          style={{
-            top: "30%",
-            right: "25%",
-            background: "radial-gradient(ellipse, rgba(167,139,250,0.15), transparent 65%)",
-          }}
-        />
-
-        {/* 装飾: グリッド */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-            maskImage: "radial-gradient(ellipse 80% 80% at 60% 40%, black 20%, transparent 70%)",
-            WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 60% 40%, black 20%, transparent 70%)",
-          }}
-        />
-
-        {/* コンテンツ */}
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-36">
-          <div className="max-w-4xl">
-            {/* AI Shelf ロゴタイポグラフィ */}
-            <h1 className="font-[family-name:var(--font-ui)] font-black leading-none tracking-tighter" style={{ fontSize: "clamp(5rem, 15vw, 12rem)" }}>
-              <span className="text-white">AI</span><span className="text-gradient-light">Shelf</span>
-            </h1>
-            <p className="mt-8 text-base sm:text-lg text-white/80 leading-relaxed max-w-2xl">
-              AI自動化の知識を、体系的に。業務効率化からAI開発まで、実践的なナレッジベース。
-            </p>
-            <div className="mt-10 flex flex-wrap gap-4">
+        <div className="absolute bottom-6 sm:bottom-10 left-0 right-0 z-10">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-wrap gap-4">
               <Link
                 href="/articles"
                 className="inline-flex items-center px-7 py-3.5 text-sm font-[family-name:var(--font-ui)] font-semibold text-white bg-white/15 backdrop-blur-sm rounded-lg border border-white/25 hover:bg-white/25 transition-all duration-200"
