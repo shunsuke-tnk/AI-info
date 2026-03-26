@@ -14,7 +14,7 @@ export default function Home() {
       {/* ヒーローセクション */}
       <section className="relative w-full">
         <Image
-          src="/images/hero/2.png"
+          src="/images/hero/top.png"
           alt="AI Shelf"
           width={2000}
           height={800}
@@ -26,13 +26,13 @@ export default function Home() {
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/articles"
-                className="inline-flex items-center px-7 py-3.5 text-sm font-[family-name:var(--font-ui)] font-semibold text-white bg-white/15 backdrop-blur-sm rounded-lg border border-white/25 hover:bg-white/25 transition-all duration-200"
+                className="inline-flex items-center px-7 py-3.5 text-sm font-[family-name:var(--font-ui)] font-semibold text-gray-900 bg-white/60 backdrop-blur-sm rounded-lg border border-gray-300 hover:bg-white/80 transition-all duration-200"
               >
                 記事を読む
               </Link>
               <Link
                 href="/about"
-                className="inline-flex items-center px-7 py-3.5 text-sm font-[family-name:var(--font-ui)] font-semibold text-white/70 rounded-lg border border-white/10 hover:border-white/30 hover:text-white transition-all duration-200"
+                className="inline-flex items-center px-7 py-3.5 text-sm font-[family-name:var(--font-ui)] font-semibold text-gray-700 rounded-lg border border-gray-300 hover:border-gray-500 hover:text-gray-900 transition-all duration-200"
               >
                 AI Shelfとは
               </Link>
